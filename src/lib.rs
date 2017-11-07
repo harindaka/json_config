@@ -7,13 +7,13 @@ pub enum ConfigSource {
     FileContent(PathBuf),    
 }
 
-pub fn my_function(config_overrides: Vec<ConfigSource>){
+pub fn merge_configs(config_overrides: &Vec<ConfigSource>){
     for config in config_overrides{
         match config {
-            ConfigSource::StringContent(content) => {
+            &ConfigSource::StringContent(ref content) => {
                 println!("{}", content);
             },
-            ConfigSource::FileContent(path) => {
+            &ConfigSource::FileContent(ref path) => {
                 let mut config_file = File::open(path).unwrap();
                 let mut contents = String::new();
                 config_file.read_to_string(&mut contents).unwrap();
