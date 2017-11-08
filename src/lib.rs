@@ -13,31 +13,46 @@ pub enum ConfigSource {
     FileContent(PathBuf),    
 }
 
-pub fn merge_configs(config_overrides: &Vec<ConfigSource>) -> Value{
-    let mut merged_config: Value = from_str("{}").unwrap();
-    
-    for config in config_overrides{
-        match config {
-            &ConfigSource::StringContent(ref content) => {
-                println!("{}", &content);
-                
-                let config_override: Value = from_str(&content[..]).unwrap();
-                merge(&mut merged_config, config_override);
-                //merge(&mut config, &json_override);
-            },
-            &ConfigSource::FileContent(ref path) => {
-                let mut config_file = File::open(path).unwrap();
-                let mut config_file_content = String::new();
-                config_file.read_to_string(&mut config_file_content).unwrap();
-                
-                let config_override: Value = from_str(&config_file_content[..]).unwrap();
-                merge(&mut merged_config, config_override);
-            }
-        }
-    } 
-
-    return merged_config;
+pub struct Configuration {
+    config: Value    
 }
+
+impl Configuration{
+
+    pub fn new(config_overrides: &Vec<ConfigSource>) -> Configuration{
+        let mut merged_config: Value = from_str("{}").unwrap();
+        
+        for config in config_overrides{
+            match config {
+                &ConfigSource::StringContent(ref content) => {
+                    println!("{}", &content);
+                    
+                    let config_override: Value = from_str(&content[..]).unwrap();
+                    merge(&mut merged_config, config_override);
+                    //merge(&mut config, &json_override);
+                },
+                &ConfigSource::FileContent(ref path) => {
+                    let mut config_file = File::open(path).unwrap();
+                    let mut config_file_content = String::new();
+                    config_file.read_to_string(&mut config_file_content).unwrap();
+                    
+                    let config_override: Value = from_str(&config_file_content[..]).unwrap();
+                    merge(&mut merged_config, config_override);
+                }
+            }
+        } 
+
+        return Configuration{
+            config: merged_config
+        };
+    }
+
+    pub fn to_string(&self) -> String{
+        return self.config.to_string();
+    }
+}
+
+
 
 // fn merge(a: &mut Value, b: &Value) {
 //     match (a, b) {
