@@ -13,23 +13,30 @@ pub enum ConfigSource {
     FileContent(PathBuf),    
 }
 
-pub fn merge_configs(config_overrides: &Vec<ConfigSource>){
+pub fn merge_configs(config_overrides: &Vec<ConfigSource>) -> Value{
+    let mut merged_config: Value = from_str("{}").unwrap();
+    
     for config in config_overrides{
         match config {
             &ConfigSource::StringContent(ref content) => {
-                //let mut config: Value = from_str(include_str!("config/config.json")).unwrap();
-                //merge(&mut config, &config_qa);
-                //merge(&mut config, config_qa);
-                println!("{}", content);
+                println!("{}", &content);
+                
+                let config_override: Value = from_str(&content[..]).unwrap();
+                merge(&mut merged_config, config_override);
+                //merge(&mut config, &json_override);
             },
             &ConfigSource::FileContent(ref path) => {
                 let mut config_file = File::open(path).unwrap();
-                let mut contents = String::new();
-                config_file.read_to_string(&mut contents).unwrap();
-                println!("{}", contents);
+                let mut config_file_content = String::new();
+                config_file.read_to_string(&mut config_file_content).unwrap();
+                
+                let config_override: Value = from_str(&config_file_content[..]).unwrap();
+                merge(&mut merged_config, config_override);
             }
         }
-    }    
+    } 
+
+    return merged_config;
 }
 
 // fn merge(a: &mut Value, b: &Value) {
