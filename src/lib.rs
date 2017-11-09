@@ -3,6 +3,7 @@ extern crate serde_json;
 
 use serde_json::Value;
 use serde_json::from_str;
+use serde_json::to_string_pretty;
 
 use std::path::PathBuf;
 use std::fs::File;
@@ -10,45 +11,61 @@ use std::io::Read;
 
 pub enum ConfigSource {
     StringContent(String),
-    FileContent(PathBuf),    
+    FileContent(PathBuf)    
 }
 
-pub struct Configuration {
+pub struct ConfigurationBuilder {
     config: Value    
 }
 
-impl Configuration{
+impl ConfigurationBuilder{
 
-    pub fn new(config_overrides: &Vec<ConfigSource>) -> Configuration{
-        let mut merged_config: Value = from_str("{}").unwrap();
+    pub fn new(base_source: &ConfigSource) -> ConfigurationBuilder{
+        let base_config: Value = from_str("{}").unwrap();
         
-        for config in config_overrides{
-            match config {
-                &ConfigSource::StringContent(ref content) => {
-                    println!("{}", &content);
-                    
-                    let config_override: Value = from_str(&content[..]).unwrap();
-                    merge(&mut merged_config, config_override);
-                    //merge(&mut config, &json_override);
-                },
-                &ConfigSource::FileContent(ref path) => {
-                    let mut config_file = File::open(path).unwrap();
-                    let mut config_file_content = String::new();
-                    config_file.read_to_string(&mut config_file_content).unwrap();
-                    
-                    let config_override: Value = from_str(&config_file_content[..]).unwrap();
-                    merge(&mut merged_config, config_override);
-                }
-            }
-        } 
-
-        return Configuration{
-            config: merged_config
+        let mut config_builder = ConfigurationBuilder{
+            config: base_config
         };
+
+        config_builder.merge_source(&base_source);
+
+        return config_builder;
+    }
+
+    pub fn merge_sources(&mut self, config_sources: &Vec<ConfigSource>){        
+        for source in config_sources{
+            self.merge_source(&source);
+        }
+    }
+
+    pub fn merge_source(&mut self, config_source: &ConfigSource){            
+        match config_source {
+            &ConfigSource::StringContent(ref content) => {                
+                let config_override: Value = from_str(&content[..]).unwrap();
+                merge(&mut self.config, config_override);
+                //merge(&mut config, &json_override);
+            },
+            &ConfigSource::FileContent(ref path) => {
+                let mut config_file = File::open(path).unwrap();
+                let mut config_file_content = String::new();
+                config_file.read_to_string(&mut config_file_content).unwrap();
+                
+                let config_override: Value = from_str(&config_file_content[..]).unwrap();
+                merge(&mut self.config, config_override);
+            }
+        }      
     }
 
     pub fn to_string(&self) -> String{
         return self.config.to_string();
+    }
+
+    pub fn to_string_pretty(&self) -> String{
+        return to_string_pretty(&self.config).unwrap();
+    }
+
+    pub fn to_enum(&self) -> Value{
+        return self.config.clone();
     }
 }
 
