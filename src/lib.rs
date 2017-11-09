@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use std::fs::File;
 use std::io::Read;
 
-pub enum ConfigSource {
+pub enum ConfigurationSource {
     StringContent(String),
     FileContent(PathBuf)    
 }
@@ -20,7 +20,7 @@ pub struct ConfigurationBuilder {
 
 impl ConfigurationBuilder{
 
-    pub fn new(base_source: &ConfigSource) -> ConfigurationBuilder{
+    pub fn new(base_source: &ConfigurationSource) -> ConfigurationBuilder{
         let base_config: Value = from_str("{}").unwrap();
         
         let mut config_builder = ConfigurationBuilder{
@@ -32,20 +32,20 @@ impl ConfigurationBuilder{
         return config_builder;
     }
 
-    pub fn merge_sources(&mut self, config_sources: &Vec<ConfigSource>){        
+    pub fn merge_sources(&mut self, config_sources: &Vec<ConfigurationSource>){        
         for source in config_sources{
             self.merge_source(&source);
         }
     }
 
-    pub fn merge_source(&mut self, config_source: &ConfigSource){            
+    pub fn merge_source(&mut self, config_source: &ConfigurationSource){            
         match config_source {
-            &ConfigSource::StringContent(ref content) => {                
+            &ConfigurationSource::StringContent(ref content) => {                
                 let config_override: Value = from_str(&content[..]).unwrap();
                 merge(&mut self.config, config_override);
                 //merge(&mut config, &json_override);
             },
-            &ConfigSource::FileContent(ref path) => {
+            &ConfigurationSource::FileContent(ref path) => {
                 let mut config_file = File::open(path).unwrap();
                 let mut config_file_content = String::new();
                 config_file.read_to_string(&mut config_file_content).unwrap();
