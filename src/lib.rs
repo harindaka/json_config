@@ -8,6 +8,7 @@ use serde_json::to_string_pretty;
 use std::path::PathBuf;
 use std::fs::File;
 use std::io::Read;
+use std::collections::HashMap;
 
 pub enum ConfigurationSource {
     StringContent(String),
@@ -15,7 +16,8 @@ pub enum ConfigurationSource {
 }
 
 pub struct ConfigurationBuilder {
-    config: Value    
+    config: Value,
+    bundles: HashMap<String, Vec<ConfigurationSource>>    
 }
 
 impl ConfigurationBuilder{
@@ -24,7 +26,8 @@ impl ConfigurationBuilder{
         let base_config: Value = from_str("{}").unwrap();
         
         let mut config_builder = ConfigurationBuilder{
-            config: base_config
+            config: base_config,
+            bundles: HashMap::new()
         };
 
         config_builder.merge_source(&base_source);
@@ -54,6 +57,15 @@ impl ConfigurationBuilder{
                 merge(&mut self.config, config_override);
             }
         }      
+    }
+
+    pub fn define_bundle(&mut self, bundle_key: String, sources: Vec<ConfigurationSource>){
+        self.bundles.insert(bundle_key, sources);
+    }
+
+    pub fn merge_bundle(&mut self, bundle_key: String){
+        let mut sources = &self.bundles[&bundle_key];
+        self.merge_sources(&sources);
     }
 
     pub fn to_string(&self) -> String{
