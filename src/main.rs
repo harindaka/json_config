@@ -21,7 +21,7 @@ fn main(){
 }
 
 // fn buildrs(){
-//     let builder = ConfigurationBuilder::from_env();
+//     let builder = ConfigurationBuilder::from_env("JSON_CONFIG_ENV");
 //     builder.to_out_file("json_config.json");
 // }
 
