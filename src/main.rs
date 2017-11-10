@@ -20,4 +20,12 @@ fn main(){
     println!("{}", builder.to_enum().to_string());
 }
 
-//https://stackoverflow.com/questions/32956050/how-to-create-a-static-string-at-compile-time
+// fn buildrs(){
+//     let builder = ConfigurationBuilder::from_env();
+//     builder.to_out_file("json_config.json");
+// }
+
+// fn main(){
+//     let builder = from_out_file!("json_config.json");
+//     println!("{}", builder.to_enum().to_string());
+// }
