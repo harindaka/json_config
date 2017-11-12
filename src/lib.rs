@@ -19,12 +19,12 @@ pub enum ConfigurationSource {
     FileContent(PathBuf)    
 }
 
-pub struct ConfigurationBuilder {
+pub struct ConfigurationBuilder<'a> {
     config: Value,
     bundles: HashMap<&'a str, &'a Vec<ConfigurationSource>>    
 }
 
-impl ConfigurationBuilder{
+impl<'a> ConfigurationBuilder<'a>{
 
     pub fn new(base_source: &ConfigurationSource) -> ConfigurationBuilder{
         let base_config: Value = from_str("{}").unwrap();
@@ -73,7 +73,7 @@ impl ConfigurationBuilder{
     }
 
     pub fn to_out_file(&mut self, filename: &str){
-        gen_file_str(filename, self.config.to_string());
+        gen_file_str(filename, self.config.to_string().as_str());
     }
 
     pub fn to_string(&self) -> String{
