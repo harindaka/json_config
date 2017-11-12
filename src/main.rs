@@ -1,3 +1,4 @@
+#[macro_use]
 extern crate json_config;
 
 use json_config::ConfigurationBuilder;
@@ -5,9 +6,11 @@ use json_config::ConfigurationSource;
 
 fn main(){
     
-    let base_config = ConfigurationSource::StringContent(String::from(r#"{"test0": "val0"}"#));
-    let mut builder = ConfigurationBuilder::new(&base_config);
+    // let base_config = ConfigurationSource::StringContent(String::from(r#"{"test0": "val0"}"#));
+    // let mut builder = ConfigurationBuilder::new(base_config);
 
+    let mut builder = config_str!(r#"{"test0": "val0"}"#);
+    
     builder.merge_source(&ConfigurationSource::StringContent(String::from(r#"{"test1": 1}"#)));
 
     let config_sources = vec![

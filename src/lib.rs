@@ -1,7 +1,5 @@
 extern crate serde;
 extern crate serde_json;
-
-#[macro_use]
 extern crate build_script_file_gen;
 
 use serde_json::Value;
@@ -26,7 +24,7 @@ pub struct ConfigurationBuilder<'a> {
 
 impl<'a> ConfigurationBuilder<'a>{
 
-    pub fn new(base_source: &ConfigurationSource) -> ConfigurationBuilder{
+    pub fn new(base_source: ConfigurationSource) -> ConfigurationBuilder<'a>{
         let base_config: Value = from_str("{}").unwrap();
         
         let mut config_builder = ConfigurationBuilder{
@@ -93,6 +91,20 @@ impl<'a> ConfigurationBuilder<'a>{
 macro_rules! from_out_file {  
     ($file:expr) => {         
         include_file_str!($file);
+    }
+}
+
+#[macro_export]
+macro_rules! config_str {  
+    ($json:expr) => {         
+        ConfigurationBuilder::new(ConfigurationSource::StringContent(String::from($json)))
+    }
+}
+
+#[macro_export]
+macro_rules! config_file {  
+    ($file_path:expr) => {                 
+        ConfigurationBuilder::new(ConfigurationSource::FileContent(String::from($file_path)))
     }
 }
 
