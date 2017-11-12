@@ -63,12 +63,12 @@ impl<'a> ConfigurationBuilder<'a>{
         }      
     }
 
-    pub fn define_bundle(&mut self, bundle_key: &str, sources: &Vec<ConfigurationSource>){
+    pub fn define_bundle(&mut self, bundle_key: &'a str, sources: &'a Vec<ConfigurationSource>){
         self.bundles.insert(bundle_key, sources);
     }
 
     pub fn merge_bundle(&mut self, bundle_key: &str){
-        let mut sources = self.bundles[bundle_key];
+        let sources = self.bundles[bundle_key];
         self.merge_sources(&sources);
     }
 

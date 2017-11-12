@@ -5,7 +5,8 @@ use json_config::ConfigurationSource;
 
 fn main(){
     
-    let mut builder = ConfigurationBuilder::new(&ConfigurationSource::StringContent(String::from(r#"{"test0": "val0"}"#)));
+    let base_config = ConfigurationSource::StringContent(String::from(r#"{"test0": "val0"}"#));
+    let mut builder = ConfigurationBuilder::new(&base_config);
 
     builder.merge_source(&ConfigurationSource::StringContent(String::from(r#"{"test1": 1}"#)));
 
