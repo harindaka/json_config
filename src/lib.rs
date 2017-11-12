@@ -1,9 +1,13 @@
 extern crate serde;
 extern crate serde_json;
 
+#[macro_use]
+extern crate build_script_file_gen;
+
 use serde_json::Value;
 use serde_json::from_str;
 use serde_json::to_string_pretty;
+use build_script_file_gen::gen_file_str;
 
 use std::path::PathBuf;
 use std::fs::File;
@@ -17,7 +21,7 @@ pub enum ConfigurationSource {
 
 pub struct ConfigurationBuilder {
     config: Value,
-    bundles: HashMap<String, Vec<ConfigurationSource>>    
+    bundles: HashMap<&'a str, &'a Vec<ConfigurationSource>>    
 }
 
 impl ConfigurationBuilder{
@@ -59,13 +63,17 @@ impl ConfigurationBuilder{
         }      
     }
 
-    pub fn define_bundle(&mut self, bundle_key: String, sources: Vec<ConfigurationSource>){
+    pub fn define_bundle(&mut self, bundle_key: &str, sources: &Vec<ConfigurationSource>){
         self.bundles.insert(bundle_key, sources);
     }
 
-    pub fn merge_bundle(&mut self, bundle_key: String){
-        let mut sources = &self.bundles[&bundle_key];
+    pub fn merge_bundle(&mut self, bundle_key: &str){
+        let mut sources = self.bundles[bundle_key];
         self.merge_sources(&sources);
+    }
+
+    pub fn to_out_file(&mut self, filename: &str){
+        gen_file_str(filename, self.config.to_string());
     }
 
     pub fn to_string(&self) -> String{
@@ -81,7 +89,12 @@ impl ConfigurationBuilder{
     }
 }
 
-
+#[macro_export]
+macro_rules! from_out_file {  
+    ($file:expr) => {         
+        include_file_str!($file);
+    }
+}
 
 // fn merge(a: &mut Value, b: &Value) {
 //     match (a, b) {
