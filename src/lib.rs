@@ -70,7 +70,7 @@ impl<'a> ConfigurationBuilder<'a>{
         self.merge_sources(&sources);
     }
 
-    pub fn to_out_file(&mut self, filename: &str){
+    pub fn to_compiled(&mut self, filename: &str){
         gen_file_str(filename, self.config.to_string().as_str());
     }
 
@@ -88,9 +88,9 @@ impl<'a> ConfigurationBuilder<'a>{
 }
 
 #[macro_export]
-macro_rules! from_out_file {  
+macro_rules! config_compiled {  
     ($file:expr) => {         
-        include_file_str!($file);
+        ConfigurationBuilder::new(ConfigurationSource::StringContent(String::from(include_file_str!($file))))
     }
 }
 

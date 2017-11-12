@@ -25,7 +25,7 @@ fn main(){
 }
 
 // fn buildrs(){
-//     let builder = ConfigurationBuilder::new(&ConfigurationSource::StringContent(String::from(r#"{"test0": "val0"}"#)));
+//     let builder = ConfigurationBuilder::new(ConfigurationSource::StringContent(String::from(r#"{"test0": "val0"}"#)));
 //     builder.define_bundle("qa", config_sources); //just store
 //     builder.define_bundle("prod", config_sources); //just store
 //     buider.merge_bundle(env!("JSON_CONFIG_ENV")); //clone and lazy merge env
