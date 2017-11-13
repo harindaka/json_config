@@ -30,14 +30,8 @@ fn main(){
 }
 
 // fn buildrs(){
-//     let mut builder = config_str!(r#"{"test0": "val0"}"#);
-//     builder.define_bundle("qa", config_sources); //just store
-//     builder.define_bundle("prod", config_sources); //just store
-//     builder.merge_bundle(env!("JSON_CONFIG_ENV")); //clone and lazy merge env
-//     builder.to_compiled("json_config.json");
-
 //     builder = config!([
-//         from_json!(r#"{
+//         from_str!(r#"{
 //             "database": {
 //                 "host": "dev.database.com"
 //                 "port": 3000
@@ -47,7 +41,7 @@ fn main(){
 //         from_file!("api_keys.json"),
 
 //         bundle!("QA",[
-//             from_json!(r#"{
+//             from_str!(r#"{
 //                 "database": {
 //                     "host": "qa.database.com"
 //                     "port": 3001
@@ -57,7 +51,7 @@ fn main(){
 //         ]),
 
 //         bundle!("PROD",[
-//             from_json!(r#"{
+//             from_str!(r#"{
 //                 "database": {
 //                     "host": "prod.database.com"
 //                     "port": 3002
@@ -78,7 +72,7 @@ fn main(){
     
 //     let builder = config!([
 //         from_compiled!("json_config.json"),
-//         from_string!(remote_config)
+//         from_str!(remote_config)
 //     ]);
 
 //     println!("{}", builder.to_string_pretty());
