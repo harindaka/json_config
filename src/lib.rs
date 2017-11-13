@@ -1,4 +1,5 @@
 extern crate serde;
+#[macro_use]
 extern crate serde_json;
 extern crate build_script_file_gen;
 
@@ -7,14 +8,13 @@ use serde_json::from_str;
 use serde_json::to_string_pretty;
 use build_script_file_gen::gen_file_str;
 
-use std::path::PathBuf;
 use std::fs::File;
 use std::io::Read;
 use std::collections::HashMap;
 
 pub enum ConfigurationSource {
     StringContent(String),
-    FileContent(PathBuf)    
+    FileContent(String)    
 }
 
 pub struct ConfigurationBuilder<'a> {
@@ -97,14 +97,7 @@ macro_rules! from_compiled {
 #[macro_export]
 macro_rules! from_str {  
     ($json:expr) => {         
-        ConfigurationSource::StringContent($json)
-    }
-}
-
-#[macro_export]
-macro_rules! from_json {  
-    ($json:expr) => {         
-        ConfigurationSource::StringContent(String::from(r#"$json"#))
+        ConfigurationSource::StringContent(String::from($json))
     }
 }
 
