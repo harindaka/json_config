@@ -88,23 +88,30 @@ impl<'a> ConfigurationBuilder<'a>{
 }
 
 #[macro_export]
-macro_rules! config_compiled {  
+macro_rules! from_compiled {  
     ($file:expr) => {         
-        ConfigurationBuilder::new(ConfigurationSource::StringContent(String::from(include_file_str!($file))))
+        ConfigurationSource::StringContent(String::from(include_file_str!($file)))
     }
 }
 
 #[macro_export]
-macro_rules! config_str {  
+macro_rules! from_str {  
     ($json:expr) => {         
-        ConfigurationBuilder::new(ConfigurationSource::StringContent(String::from($json)))
+        ConfigurationSource::StringContent($json)
     }
 }
 
 #[macro_export]
-macro_rules! config_file {  
+macro_rules! from_json {  
+    ($json:expr) => {         
+        ConfigurationSource::StringContent(String::from(r#"$json"#))
+    }
+}
+
+#[macro_export]
+macro_rules! from_file {  
     ($file_path:expr) => {                 
-        ConfigurationBuilder::new(ConfigurationSource::FileContent(String::from($file_path)))
+        ConfigurationSource::FileContent(String::from($file_path))
     }
 }
 
