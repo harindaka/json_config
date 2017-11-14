@@ -1,5 +1,4 @@
 extern crate serde;
-#[macro_use]
 extern crate serde_json;
 extern crate build_script_file_gen;
 
@@ -12,6 +11,7 @@ use std::fs::File;
 use std::io::Read;
 use std::collections::HashMap;
 
+#[derive(Clone)]
 pub enum ConfigurationSource {
     StringContent(String),
     FileContent(String)    
@@ -41,7 +41,7 @@ impl<'a> ConfigurationBuilder{
 
         return config_builder;
     }
-
+    
     pub fn from_definition(definition: Vec<ConfigurationDefinitionParams>) -> ConfigurationBuilder{
         let mut builder = ConfigurationBuilder::new(ConfigurationSource::StringContent(String::from("{}")));
 
@@ -57,7 +57,7 @@ impl<'a> ConfigurationBuilder{
 
     pub fn merge_sources(&mut self, config_sources: &Vec<ConfigurationSource>){        
         for source in config_sources{
-            self.merge_source(source);
+            self.merge_source(&source);
         }
     }
 
@@ -65,8 +65,7 @@ impl<'a> ConfigurationBuilder{
         match config_source {
             &ConfigurationSource::StringContent(ref content) => {                
                 let config_override: Value = from_str(&content[..]).unwrap();
-                merge(&mut self.config, config_override);
-                //merge(&mut config, &json_override);
+                merge(&mut self.config, &config_override);
             },
             &ConfigurationSource::FileContent(ref path) => {
                 let mut config_file = File::open(path).unwrap();
@@ -74,7 +73,7 @@ impl<'a> ConfigurationBuilder{
                 config_file.read_to_string(&mut config_file_content).unwrap();
                 
                 let config_override: Value = from_str(&config_file_content[..]).unwrap();
-                merge(&mut self.config, config_override);
+                merge(&mut self.config, &config_override);
             }
         }      
     }
@@ -84,8 +83,8 @@ impl<'a> ConfigurationBuilder{
     }
 
     pub fn merge_bundle(&mut self, bundle_key: &str){
-        let sources = self.bundles.get(bundle_key).unwrap();
-        self.merge_sources(sources.clone());
+        let sources = self.bundles.get(bundle_key).unwrap().clone();
+        self.merge_sources(&sources);
     }
 
     pub fn to_compiled(&mut self, filename: &str){
@@ -154,15 +153,16 @@ macro_rules! config {
 //     }
 // }
 
-fn merge(a: &mut Value, b: Value) {
+fn merge(a: &mut Value, b: &Value) {
     match (a, b) {
-        (a @ &mut Value::Object(_), Value::Object(b)) => {
-            let a = a.as_object_mut().unwrap();
+        (&mut Value::Object(ref mut a), &Value::Object(ref b)) => {
             for (k, v) in b {
-                merge(a.entry(k).or_insert(Value::Null), v);
+                merge(a.entry(k.clone()).or_insert(Value::Null), v);
             }
         }
-        (a, b) => *a = b,
+        (a, b) => {
+            *a = b.clone();
+        }
     }
 }
 
