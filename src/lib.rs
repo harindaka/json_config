@@ -17,19 +17,19 @@ pub enum ConfigurationSource {
     FileContent(String)    
 }
 
-pub enum ConfigurationDefinitionParams<'a>{
+pub enum ConfigurationDefinitionParams{
     Source(ConfigurationSource),
-    Bundle(&'a str, &'a Vec<ConfigurationSource>)
+    Bundle(String, Vec<ConfigurationSource>)
 }
 
-pub struct ConfigurationBuilder<'a> {
+pub struct ConfigurationBuilder {
     config: Value,
-    bundles: HashMap<&'a str, &'a Vec<ConfigurationSource>>    
+    bundles: HashMap<String, Vec<ConfigurationSource>>    
 }
 
-impl<'a> ConfigurationBuilder<'a>{
+impl<'a> ConfigurationBuilder{
 
-    pub fn new(base_source: ConfigurationSource) -> ConfigurationBuilder<'a>{
+    pub fn new(base_source: ConfigurationSource) -> ConfigurationBuilder{
         let base_config: Value = from_str("{}").unwrap();
         
         let mut config_builder = ConfigurationBuilder{
@@ -48,7 +48,7 @@ impl<'a> ConfigurationBuilder<'a>{
         for def_param in definition{
             match def_param{
                 ConfigurationDefinitionParams::Source(source) => builder.merge_source(&source),
-                ConfigurationDefinitionParams::Bundle(bundle_key, sources) => builder.define_bundle(bundle_key, &sources)
+                ConfigurationDefinitionParams::Bundle(bundle_key, sources) => builder.define_bundle(bundle_key, sources)
             }
         }
 
@@ -57,7 +57,7 @@ impl<'a> ConfigurationBuilder<'a>{
 
     pub fn merge_sources(&mut self, config_sources: &Vec<ConfigurationSource>){        
         for source in config_sources{
-            self.merge_source(&source);
+            self.merge_source(source);
         }
     }
 
@@ -79,13 +79,13 @@ impl<'a> ConfigurationBuilder<'a>{
         }      
     }
 
-    pub fn define_bundle(&mut self, bundle_key: &'a str, sources: &'a Vec<ConfigurationSource>){
+    pub fn define_bundle(&mut self, bundle_key: String, sources: Vec<ConfigurationSource>){
         self.bundles.insert(bundle_key, sources);
     }
 
     pub fn merge_bundle(&mut self, bundle_key: &str){
-        let sources = self.bundles[bundle_key];
-        self.merge_sources(&sources);
+        let sources = self.bundles.get(bundle_key).unwrap();
+        self.merge_sources(sources.clone());
     }
 
     pub fn to_compiled(&mut self, filename: &str){
