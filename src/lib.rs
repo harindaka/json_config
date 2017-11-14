@@ -19,7 +19,7 @@ pub enum ConfigurationSource {
 
 pub enum ConfigurationDefinitionParams<'a>{
     Source(ConfigurationSource),
-    Bundle(String, &'a Vec<ConfigurationSource>)
+    Bundle(&'a str, &'a Vec<ConfigurationSource>)
 }
 
 pub struct ConfigurationBuilder<'a> {
@@ -47,8 +47,8 @@ impl<'a> ConfigurationBuilder<'a>{
 
         for def_param in definition{
             match def_param{
-                ConfigurationDefinitionParams::Source(ref source) => builder.merge_source(source),
-                ConfigurationDefinitionParams::Bundle(ref bundle_key, sources) => builder.define_bundle(bundle_key, &sources)
+                ConfigurationDefinitionParams::Source(source) => builder.merge_source(&source),
+                ConfigurationDefinitionParams::Bundle(bundle_key, sources) => builder.define_bundle(bundle_key, &sources)
             }
         }
 
