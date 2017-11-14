@@ -1,44 +1,44 @@
-// #[macro_use]
-// extern crate json_config;
+#[macro_use]
+extern crate json_config;
 
-// use json_config::ConfigurationBuilder;
-// use json_config::ConfigurationSource;
-// use json_config::ConfigurationDefinitionParams;
+use json_config::ConfigurationBuilder;
+use json_config::ConfigurationSource;
+use json_config::ConfigurationDefinitionParams;
 
 fn main(){
         
-//     let builder = config!(vec![
-//         from_str!(r#"{
-//             "database": {
-//                 "host": "dev.database.com"
-//                 "port": 3000
-//             }
-//         }"#)//,
-//         // from_file!("translations.json"),
-//         // from_file!("api_keys.json"),
+    let builder = config!(vec![
+        from_str!(r#"{
+            "database": {
+                "host": "dev.database.com"
+                "port": 3000
+            }
+        }"#)//,
+        // from_file!("translations.json"),
+        // from_file!("api_keys.json"),
 
-//         // bundle!("QA",[
-//         //     from_str!(r#"{
-//         //         "database": {
-//         //             "host": "qa.database.com"
-//         //             "port": 3001
-//         //         }
-//         //     }"#),
-//         //     from_file!("api_keys_qa.json")  
-//         // ]),
+        // bundle!("QA",[
+        //     from_str!(r#"{
+        //         "database": {
+        //             "host": "qa.database.com"
+        //             "port": 3001
+        //         }
+        //     }"#),
+        //     from_file!("api_keys_qa.json")  
+        // ]),
 
-//         // bundle!("PROD",[
-//         //     from_str!(r#"{
-//         //         "database": {
-//         //             "host": "prod.database.com"
-//         //             "port": 3002
-//         //         }
-//         //     }"#),
-//         //     from_file!("api_keys_prod.json") 
-//         // ])
-//     ]);
+        // bundle!("PROD",[
+        //     from_str!(r#"{
+        //         "database": {
+        //             "host": "prod.database.com"
+        //             "port": 3002
+        //         }
+        //     }"#),
+        //     from_file!("api_keys_prod.json") 
+        // ])
+    ]);
 
-//     println!("{}", builder.to_string_pretty());
+    println!("{}", builder.to_string_pretty());
 }
 
 // // fn buildrs(){
