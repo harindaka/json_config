@@ -1,0 +1,6 @@
+{
+    "apiKeys": {
+        "googleMaps": "qa-google-api-key",
+        "aws": "qa-aws-api-key"
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "apiKeys": {
+        "googleMaps": "prod-google-api-key",
+        "aws": "prod-aws-api-key"
+    }
+}

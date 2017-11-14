@@ -3,30 +3,56 @@ extern crate json_config;
 
 use json_config::ConfigurationBuilder;
 use json_config::ConfigurationSource;
+use json_config::ConfigurationDefinitionParams;
 
 fn main(){
     
     // let base_config = ConfigurationSource::StringContent(String::from(r#"{"test0": "val0"}"#));
     // let mut builder = ConfigurationBuilder::new(base_config);
 
-    let base_config_str = String::from(r#"{"fromString": "from_string"}"#);
-    let base_config = from_str!(base_config_str);
-    let mut builder = ConfigurationBuilder::new(base_config);
+    // builder.merge_source(&ConfigurationSource::StringContent(String::from(r#"{"test1": 1}"#)));
 
-    builder.merge_source(&from_str!(r#"{"fromStr": "from_str"}"#));
-    builder.merge_source(&from_file!("/home/harindaka/source/github/json_config/config/translations.json"));
+    // let config_sources = vec![
+    //     ConfigurationSource::StringContent(String::from(r#"{"test2": 1.234, "nested": { "nested1": "nestedValue1" }}"#)),
+    //     ConfigurationSource::StringContent(String::from(r#"{"test3": true}"#))
+    // ];
     
-    builder.merge_source(&ConfigurationSource::StringContent(String::from(r#"{"test1": 1}"#)));
+    // builder.merge_sources(&config_sources);  
 
-    let config_sources = vec![
-        ConfigurationSource::StringContent(String::from(r#"{"test2": 1.234, "nested": { "nested1": "nestedValue1" }}"#)),
-        ConfigurationSource::StringContent(String::from(r#"{"test3": true}"#))
-    ];
-    
-    builder.merge_sources(&config_sources);  
+    // println!("{}", builder.to_enum().to_string());
 
-    //println!("{}", builder.to_string_pretty());
-    println!("{}", builder.to_enum().to_string());
+    let builder = config!(vec![
+        from_str!(r#"{
+            "database": {
+                "host": "dev.database.com"
+                "port": 3000
+            }
+        }"#)//,
+        // from_file!("translations.json"),
+        // from_file!("api_keys.json"),
+
+        // bundle!("QA",[
+        //     from_str!(r#"{
+        //         "database": {
+        //             "host": "qa.database.com"
+        //             "port": 3001
+        //         }
+        //     }"#),
+        //     from_file!("api_keys_qa.json")  
+        // ]),
+
+        // bundle!("PROD",[
+        //     from_str!(r#"{
+        //         "database": {
+        //             "host": "prod.database.com"
+        //             "port": 3002
+        //         }
+        //     }"#),
+        //     from_file!("api_keys_prod.json") 
+        // ])
+    ]);
+
+    println!("{}", builder.to_string_pretty());
 }
 
 // fn buildrs(){
@@ -47,7 +73,7 @@ fn main(){
 //                     "port": 3001
 //                 }
 //             }"#),
-//             from_file!("api_keys.json")  
+//             from_file!("api_keys_qa.json")  
 //         ]),
 
 //         bundle!("PROD",[
@@ -57,7 +83,7 @@ fn main(){
 //                     "port": 3002
 //                 }
 //             }"#),
-//             from_file!("api_keys.json") 
+//             from_file!("api_keys_prod.json") 
 //         ])
 //     ]);
 //

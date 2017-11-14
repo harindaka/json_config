@@ -17,6 +17,11 @@ pub enum ConfigurationSource {
     FileContent(String)    
 }
 
+pub enum ConfigurationDefinitionParams<'a>{
+    Source(ConfigurationSource),
+    Bundle(String, &'a Vec<ConfigurationSource>)
+}
+
 pub struct ConfigurationBuilder<'a> {
     config: Value,
     bundles: HashMap<&'a str, &'a Vec<ConfigurationSource>>    
@@ -35,6 +40,19 @@ impl<'a> ConfigurationBuilder<'a>{
         config_builder.merge_source(&base_source);
 
         return config_builder;
+    }
+
+    pub fn from_definition(definition: Vec<ConfigurationDefinitionParams>) -> ConfigurationBuilder{
+        let mut builder = ConfigurationBuilder::new(ConfigurationSource::StringContent(String::from("{}")));
+
+        for def_param in definition{
+            match def_param{
+                ConfigurationDefinitionParams::Source(ref source) => builder.merge_source(source),
+                ConfigurationDefinitionParams::Bundle(ref bundle_key, sources) => builder.define_bundle(bundle_key, &sources)
+            }
+        }
+
+        return builder;
     }
 
     pub fn merge_sources(&mut self, config_sources: &Vec<ConfigurationSource>){        
@@ -90,23 +108,38 @@ impl<'a> ConfigurationBuilder<'a>{
 #[macro_export]
 macro_rules! from_compiled {  
     ($file:expr) => {         
-        ConfigurationSource::StringContent(String::from(include_file_str!($file)))
+        ConfigurationDefinitionParams::Source(ConfigurationSource::StringContent(String::from(include_file_str!($file))))
     }
 }
 
 #[macro_export]
 macro_rules! from_str {  
     ($json:expr) => {         
-        ConfigurationSource::StringContent(String::from($json))
+        ConfigurationDefinitionParams::Source(ConfigurationSource::StringContent(String::from($json)))
     }
 }
 
 #[macro_export]
 macro_rules! from_file {  
     ($file_path:expr) => {                 
-        ConfigurationSource::FileContent(String::from($file_path))
+        ConfigurationDefinitionParams::Source(ConfigurationSource::FileContent(String::from($file_path)))
     }
 }
+
+#[macro_export]
+macro_rules! bundle {  
+    ($bundle_key:expr, $bundle_sources:expr) => {                 
+        ConfigurationDefinitionParams::Bundle(String::from($bundle_key), $bundle_sources)
+    }
+}
+
+#[macro_export]
+macro_rules! config {  
+    ($definition:expr) => {
+        ConfigurationBuilder::from_definition($definition);
+    }
+}
+
 
 // fn merge(a: &mut Value, b: &Value) {
 //     match (a, b) {
