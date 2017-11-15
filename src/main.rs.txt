@@ -1,6 +1,5 @@
 #[macro_use]
 extern crate json_config;
-
 #[macro_use]
 extern crate serde_json;
 
@@ -52,6 +51,17 @@ fn main(){
     //a remote API (i.e. REST) in json form
     let remote_config: String = get_remote_config("fr");
     builder.merge_source(&ConfigurationSource::StringContent(remote_config));
+    
+    println!("{}", builder.to_string_pretty());
+
+    //emulates retrieving a partial configuration via 
+    //a remote API (i.e. REST) in json form
+    let remote_config: String = get_remote_config("fr");
+    
+    let builder = config!(vec![
+        from_compiled!("json_config.json"),
+        from_str!(remote_config)
+    ]);
 
     println!("{}", builder.to_string_pretty());
 }
@@ -65,23 +75,3 @@ fn get_remote_config(_lang: &str) -> String{
         }
     }"#);
 }
-
-// // fn buildrs(){
-// //     builder = config!([
-// //
-// //     builder.merge_bundle(env!("JSON_CONFIG_ENV"));
-// //     builder.to_compiled("json_config.json");
-// // }
-
-// // fn main(){
-// //     //emulates retrieving a partial configuration via 
-// //     //a remote API (i.e. REST) in json form
-// //     let remote_config: String: get_remote_config("fr");
-    
-// //     let builder = config!([
-// //         from_compiled!("json_config.json"),
-// //         from_str!(remote_config)
-// //     ]);
-
-// //     println!("{}", builder.to_string_pretty());
-// // }

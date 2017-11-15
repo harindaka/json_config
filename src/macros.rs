@@ -1,7 +1,7 @@
 #[macro_export]
 macro_rules! from_compiled {  
     ($file:expr) => {         
-        ConfigurationDefinitionParams::Source(ConfigurationSource::StringContent(String::from(include_file_str!($file))))
+        ConfigurationDefinitionParams::Source(ConfigurationSource::StringContent(String::from(include_str!(concat!(env!("OUT_DIR"), "/", $file)))))
     }
 }
 

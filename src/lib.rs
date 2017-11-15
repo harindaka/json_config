@@ -1,17 +1,17 @@
-extern crate serde;
 extern crate serde_json;
-extern crate build_script_file_gen;
 
 mod macros;
 
-use std::fs::File;
 use std::io::Read;
 use std::collections::HashMap;
+use std::{env};
+use std::path::Path;
+use std::io::{Write, BufWriter};
+use std::fs::File;
 
 use serde_json::Value;
 use serde_json::from_str;
 use serde_json::to_string_pretty;
-use build_script_file_gen::gen_file_str;
 
 #[derive(Clone)]
 pub enum ConfigurationSource {
@@ -94,7 +94,11 @@ impl<'a> ConfigurationBuilder{
     }
 
     pub fn to_compiled(&mut self, filename: &str){
-        gen_file_str(filename, self.config.to_string().as_str());
+        let out_dir = env::var("OUT_DIR").unwrap();
+        let dest_path = Path::new(&out_dir).join(filename);
+        let mut f = BufWriter::new(File::create(&dest_path).unwrap());
+
+        write!(f, "{}", self.config.to_string().as_str()).unwrap();
     }
 
     pub fn to_string(&self) -> String{
