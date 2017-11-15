@@ -11,7 +11,7 @@ The library also exposes macros which help you do all of the above in a very con
 
 Documentation is still in progress...
 
-#License
+# License
 Dual licensed under MIT/Apache-2.0.
 
 <!-- 1. In build.rs (build script) do,
