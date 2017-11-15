@@ -1,6 +1,6 @@
 [package]
 name = "json_config"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["harindaka <harindaka@gmail.com>"]
 description = "A JSON based configuration management solution for Rust applications."
 homepage = "https://github.com/harindaka/json_config"
