@@ -127,9 +127,18 @@ macro_rules! from_file {
 
 #[macro_export]
 macro_rules! bundle {  
-    ($bundle_key:expr, $bundle_sources:expr) => {                 
-        ConfigurationDefinitionParams::Bundle(String::from($bundle_key), $bundle_sources)
-    }
+    ($bundle_key:expr, $bundle_sources:expr) => {{       
+        let mut config_sources = Vec::new();
+
+        for bundle in $bundle_sources{
+            match bundle {
+                ConfigurationDefinitionParams::Source(config_source) => config_sources.push(config_source),
+                ConfigurationDefinitionParams::Bundle(_,_) => panic!("Nested bundle! declarations are not supported."),
+            }
+        }
+        
+        ConfigurationDefinitionParams::Bundle(String::from($bundle_key), config_sources)
+    }}
 }
 
 #[macro_export]

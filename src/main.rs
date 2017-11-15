@@ -6,40 +6,58 @@ use json_config::ConfigurationSource;
 use json_config::ConfigurationDefinitionParams;
 
 fn main(){
-        
-    let builder = config!(vec![
+    
+    let mut builder = config!(vec![
         from_str!(r#"{
+            "appName": "json_config Demo",
+            "appVersion": "1.0",
             "database": {
                 "host": "dev.database.com",
                 "port": 3000
             }
         }"#),
-        from_file!("/home/harindaka/source/github/json_config/config/translations.json"),
-        from_file!("/home/harindaka/source/github/json_config/config/api_keys.json")
+        from_file!("config/translations.json"),
+        from_file!("config/keystore.json"),
 
-        bundle!("QA",[
+        bundle!("QA", vec![
             from_str!(r#"{
                 "database": {
                     "host": "qa.database.com",
                     "port": 3001
                 }
             }"#),
-            from_file!("/home/harindaka/source/github/json_config/config/api_keys_qa.json")  
+            from_file!("config/keystore_qa.json")  
         ]),
 
-        bundle!("PROD",[
+        bundle!("PROD",vec![
             from_str!(r#"{
                 "database": {
                     "host": "prod.database.com",
                     "port": 3002
                 }
             }"#),
-            from_file!("/home/harindaka/source/github/json_config/config/api_keys_prod.json") 
+            from_file!("config/keystore_prod.json") 
         ])
     ]);
+   
+    builder.merge_bundle(&"PROD");
 
-    
+    //emulates retrieving a partial configuration via 
+    //a remote API (i.e. REST) in json form
+    let remote_config: String = get_remote_config("fr");
+    builder.merge_source(&ConfigurationSource::StringContent(remote_config));
+
     println!("{}", builder.to_string_pretty());
+}
+
+fn get_remote_config(lang: &str) -> String{    
+    return String::from(r#"{ 
+        "translations": { 
+            "T001": "Bienvenue",
+            "T002": "Je vous remercie",
+            "T003": "Bonne journée"
+        }
+    }"#);
 }
 
 // // fn buildrs(){
