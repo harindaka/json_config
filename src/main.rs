@@ -1,41 +1,47 @@
 #[macro_use]
 extern crate json_config;
 
+#[macro_use]
+extern crate serde_json;
+
 use json_config::ConfigurationBuilder;
 use json_config::ConfigurationSource;
 use json_config::ConfigurationDefinitionParams;
 
 fn main(){
     
-    let mut builder = config!(vec![
-        from_str!(r#"{
-            "appName": "json_config Demo",
-            "appVersion": "1.0",
-            "database": {
-                "host": "dev.database.com",
-                "port": 3000
-            }
-        }"#),
+    let base_config_str = r#"
+    {
+        "appName": "json_config Demo",
+        "appVersion": "1.0",
+        "database": {
+            "host": "dev.database.com",
+            "port": 3000
+        }
+    }"#;
+
+    let mut builder = config!(vec![        
+        from_str!(base_config_str),
         from_file!("config/translations.json"),
         from_file!("config/keystore.json"),
 
         bundle!("QA", vec![
-            from_str!(r#"{
+            from_json!({
                 "database": {
                     "host": "qa.database.com",
                     "port": 3001
                 }
-            }"#),
+            }),
             from_file!("config/keystore_qa.json")  
         ]),
 
         bundle!("PROD",vec![
-            from_str!(r#"{
+            from_json!({
                 "database": {
                     "host": "prod.database.com",
                     "port": 3002
                 }
-            }"#),
+            }),
             from_file!("config/keystore_prod.json") 
         ])
     ]);
@@ -50,7 +56,7 @@ fn main(){
     println!("{}", builder.to_string_pretty());
 }
 
-fn get_remote_config(lang: &str) -> String{    
+fn get_remote_config(_lang: &str) -> String{
     return String::from(r#"{ 
         "translations": { 
             "T001": "Bienvenue",

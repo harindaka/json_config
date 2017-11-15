@@ -2,19 +2,22 @@ extern crate serde;
 extern crate serde_json;
 extern crate build_script_file_gen;
 
-use serde_json::Value;
-use serde_json::from_str;
-use serde_json::to_string_pretty;
-use build_script_file_gen::gen_file_str;
+mod macros;
 
 use std::fs::File;
 use std::io::Read;
 use std::collections::HashMap;
 
+use serde_json::Value;
+use serde_json::from_str;
+use serde_json::to_string_pretty;
+use build_script_file_gen::gen_file_str;
+
 #[derive(Clone)]
 pub enum ConfigurationSource {
     StringContent(String),
-    FileContent(String)    
+    FileContent(String),
+    JsonContent(Value)
 }
 
 pub enum ConfigurationDefinitionParams{
@@ -63,6 +66,9 @@ impl<'a> ConfigurationBuilder{
 
     pub fn merge_source(&mut self, config_source: &ConfigurationSource){            
         match config_source {
+            &ConfigurationSource::JsonContent(ref config_override) => {                
+                merge(&mut self.config, &config_override);
+            },
             &ConfigurationSource::StringContent(ref content) => {                
                 let config_override: Value = from_str(&content[..]).unwrap();
                 merge(&mut self.config, &config_override);
@@ -104,64 +110,6 @@ impl<'a> ConfigurationBuilder{
     }
 }
 
-#[macro_export]
-macro_rules! from_compiled {  
-    ($file:expr) => {         
-        ConfigurationDefinitionParams::Source(ConfigurationSource::StringContent(String::from(include_file_str!($file))))
-    }
-}
-
-#[macro_export]
-macro_rules! from_str {  
-    ($json:expr) => {         
-        ConfigurationDefinitionParams::Source(ConfigurationSource::StringContent(String::from($json)))
-    }
-}
-
-#[macro_export]
-macro_rules! from_file {  
-    ($file_path:expr) => {                 
-        ConfigurationDefinitionParams::Source(ConfigurationSource::FileContent(String::from($file_path)))
-    }
-}
-
-#[macro_export]
-macro_rules! bundle {  
-    ($bundle_key:expr, $bundle_sources:expr) => {{       
-        let mut config_sources = Vec::new();
-
-        for bundle in $bundle_sources{
-            match bundle {
-                ConfigurationDefinitionParams::Source(config_source) => config_sources.push(config_source),
-                ConfigurationDefinitionParams::Bundle(_,_) => panic!("Nested bundle! declarations are not supported."),
-            }
-        }
-        
-        ConfigurationDefinitionParams::Bundle(String::from($bundle_key), config_sources)
-    }}
-}
-
-#[macro_export]
-macro_rules! config {  
-    ($definition:expr) => {
-        ConfigurationBuilder::from_definition($definition);
-    }
-}
-
-
-// fn merge(a: &mut Value, b: &Value) {
-//     match (a, b) {
-//         (&mut Value::Object(ref mut a), &Value::Object(ref b)) => {
-//             for (k, v) in b {
-//                 merge(a.entry(k.clone()).or_insert(Value::Null), v);
-//             }
-//         }
-//         (a, b) => {
-//             *a = b.clone();
-//         }
-//     }
-// }
-
 fn merge(a: &mut Value, b: &Value) {
     match (a, b) {
         (&mut Value::Object(ref mut a), &Value::Object(ref b)) => {
@@ -175,7 +123,18 @@ fn merge(a: &mut Value, b: &Value) {
     }
 }
 
-
+// fn merge(a: &mut Value, b: &Value) {
+//     match (a, b) {
+//         (&mut Value::Object(ref mut a), &Value::Object(ref b)) => {
+//             for (k, v) in b {
+//                 merge(a.entry(k.clone()).or_insert(Value::Null), v);
+//             }
+//         }
+//         (a, b) => {
+//             *a = b.clone();
+//         }
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
