@@ -30,6 +30,6 @@ maintenance = { status = "experimental" }
 [dependencies]
 serde_json = "1.0.6"
 
-[build-dependencies]
-json_config = "0.1.1"
-serde_json = "1.0.6"
+# [build-dependencies]
+# json_config = "0.1.1"
+# serde_json = "1.0.6"
