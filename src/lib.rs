@@ -1,3 +1,4 @@
+extern crate serde;
 extern crate serde_json;
 
 mod macros;
@@ -12,6 +13,9 @@ use std::fs::File;
 use serde_json::Value;
 use serde_json::from_str;
 use serde_json::to_string_pretty;
+use serde_json::from_value;
+use serde::de::DeserializeOwned;
+//use serde_json::error::Error;
 
 #[derive(Clone)]
 pub enum ConfigurationSource {
@@ -111,6 +115,13 @@ impl<'a> ConfigurationBuilder{
 
     pub fn to_enum(&self) -> Value{
         return self.config.clone();
+    }
+
+    pub fn to_type<T>(&self) -> T
+    where
+        T: DeserializeOwned,
+    {
+        return from_value(self.config.clone()).unwrap();
     }
 }
 
