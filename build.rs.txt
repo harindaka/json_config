@@ -1,0 +1,52 @@
+#[macro_use]
+extern crate serde_json;
+#[macro_use]
+extern crate json_config;
+
+use json_config::ConfigurationBuilder;
+use json_config::ConfigurationSource;
+use json_config::ConfigurationDefinitionParams;
+
+pub fn main(){
+    let base_config_str = r#"
+    {
+        "appName": "json_config Demo",
+        "appVersion": 1.5,
+        "database": {
+            "host": "dev.database.com",
+            "port": 3000
+        }
+    }"#;
+
+    let mut builder = config!(vec![        
+        from_str!(base_config_str),
+        from_file!("config/translations.json"),
+        from_file!("config/keystore.json"),
+
+        bundle!("QA", vec![
+            from_json!({
+                "database": {
+                    "host": "qa.database.com",
+                    "port": 3001
+                }
+            }),
+            from_file!("config/keystore_qa.json")  
+        ]),
+
+        bundle!("PROD",vec![
+            from_json!({
+                "database": {
+                    "host": "prod.database.com",
+                    "port": 3002
+                }
+            }),
+            from_file!("config/keystore_prod.json") 
+        ])
+    ]);
+       
+    //execute cargo build after setting the environment variable JSON_CONFIG_ENV
+    //i.e. set JSON_CONFIG_ENV=QA on Windows 
+    //i.e. export JSON_CONFIG_ENV=QA on Linux/MacOS
+    builder.merge_bundle(env!("JSON_CONFIG_ENV"));
+    builder.to_compiled("json_config.json");
+}
