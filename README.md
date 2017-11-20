@@ -260,7 +260,7 @@ Here is the final output that you will see. Note that the database and keystore 
 }
 ``` 
 
-# Build Your Configuration at Compile-time
+# Building Your Configuration at Compile-time
 You probably may not want to build your configuration at runtime. It would make more sense to build it when the app compiles. To do this, you will need to do the same as above inside a build script (build.rs) and include the generated configuration in the main.rs at compile time. 
 
 This helps you not only maintain a lean configuration in the binary, but also validate it at compile time.
@@ -354,10 +354,12 @@ fn main(){
 
 The `from_compiled!` macro can be used similarly to the other `from_str!` or `from_file!` macros. It will include the generated `json_config.json` file content as a string literal in the code at compile time.
 
-# What if I want to package my settings as a separate file alongside the binary?
+# FAQ
+
+### What if I want to package my settings as a separate file alongside the binary?
 You could alternatively use `from_file!("json_config.json")` in place of `from_compiled!("json_config.json")` to make the `ConfigurationBuilder` import the file at runtime instead.
 
-# Can I build the configuration at compile time and extend it at runtime?
+### Can I build the configuration at compile time and extend it at runtime?
 Yes! You can have your cake and eat it too! There's nothing stopping you from extending the configuration further by merging more configuration sections at runtime. For instance, you may want to retrieve new translations via a service call and override the translations section based on a user's language selection at runtime like so,
 ```
 #[macro_use]
@@ -414,7 +416,7 @@ This will print the following output,
 }
 ```
 
-# Do I have to use macros?
+### Do I have to use macros?
 Not really. They are just there for convenience. You can alternatively use the methods found in the `ConfigurationBuilder` struct to achieve the desired effect. i.e. 
 
 ```
