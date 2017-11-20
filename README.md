@@ -31,7 +31,7 @@ Let's say that you have the following application settings to deal with,
 }
 ```
 
-Assume that you need the aforementioned settings stored in different ways. Consider this scenario,
+Assume that you need these settings stored in different ways. Consider this scenario where;
 
 The following config section is sourced from a string variable,
 ```
@@ -53,7 +53,7 @@ The following config section is hardcoded in the code,
 
 The keystore and translation settings live in their own files in a folder titled "config" relative to the executable.
 
-config/keystore.json
+**config/keystore.json**
 ```
 {    
     "keystore": {
@@ -63,7 +63,7 @@ config/keystore.json
 }
 ```
 
-config/translations.json
+**config/translations.json**
 ```
 {
     "translations": {
@@ -97,7 +97,7 @@ struct Configuration {
     app_version: f64,
     database: Database, 
     keystore: Keystore,
-    translations: HashMap<String, String> //This can be another struct instead of a HashMap too if you prefer
+    translations: HashMap<String, String> //This can also be another struct instead of a HashMap
 }
 
 #[derive(Debug, Deserialize)]
@@ -156,12 +156,14 @@ fn main(){
 ```
 
 # Using the Configuration
-The config! macro returns a `json_config::ConfigurationBuilder` object which represents the imported configuration. Once the configuration is built, you could use the `to_type()` or the `to_enum()` methods of the `ConfigurationBuilder` object to obtain either a typed struct (as illustrated above) or a serde_json::Value enum for use within the application.
+The `config!` macro returns a `json_config::ConfigurationBuilder` object which can be used to further extend or override defined configuration. You could use the `to_type()` or the `to_enum()` methods of the `ConfigurationBuilder` object to obtain either a typed struct (as illustrated above) or a `serde_json::Value` enum which represents the final configuration for use within the application.
+
+For further information on how to use the `serde_json::Value` enum, please refer the [serde_json documentation](https://docs.serde.rs/serde_json/value/index.html) 
 
 # Predefined Configuration Bundles
 Assume that you have two environments "QA" and "Production" to which you are expected to be deploying your application in addition to the development environment. The database and keystore settings are different for each environment. The latter resides in two different files like so,
 
-config/keystore_qa.json 
+**config/keystore_qa.json** (QA environment specific)
 ```
 {
     "keystore": {
@@ -171,7 +173,7 @@ config/keystore_qa.json
 }
 ```
 
-config/keystore_prod.json
+**config/keystore_prod.json** (PROD environment specific)
 ```
 {
     "keystore": {
@@ -265,7 +267,7 @@ This helps you not only maintain a lean configuration in the binary, but also va
 
 Assume that the target environment bundle name (QA/PROD) is specified via the environment variable `JSON_CONFIG_ENV` before build time, so you can do `export JSON_CONFIG_ENV=PROD && cargo build`
 
-build.rs
+**build.rs**
 ```
 #[macro_use]
 extern crate serde_json;
@@ -329,7 +331,9 @@ fn main(){
 }
 ```
 
-main.rs
+You guessed right! Bundles can have their own sources and merge order defined inside them too as illustrated above.
+
+**main.rs**
 ```
 #[macro_use]
 extern crate json_config;
@@ -350,6 +354,7 @@ fn main(){
 
 The `from_compiled!` macro can be used similarly to the other `from_str!` or `from_file!` macros. It will include the generated `json_config.json` file content as a string literal in the code at compile time.
 
+# What if I want to package my settings as a separate file alongside the binary?
 You could alternatively use `from_file!("json_config.json")` in place of `from_compiled!("json_config.json")` to make the `ConfigurationBuilder` import the file at runtime instead.
 
 # Can I build the configuration at compile time and extend it at runtime?
@@ -410,7 +415,7 @@ This will print the following output,
 ```
 
 # Do I have to use macros?
-You do not need to always stick to the macros. You can use the methods found in the ConfigurationBuilder struct too to achieve the desired effect. i.e. 
+Not really. They are just there for convenience. You can alternatively use the methods found in the `ConfigurationBuilder` struct to achieve the desired effect. i.e. 
 
 ```
 //Creating a ConfigurationBuilder instance from a source
