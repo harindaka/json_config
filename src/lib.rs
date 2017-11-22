@@ -51,17 +51,17 @@ impl<'a> ConfigurationBuilder{
         return Ok(config_builder);
     }
     
-    pub fn from_definition(definition: Vec<ConfigurationDefinitionParams>) -> ConfigurationBuilder{
-        let mut builder = ConfigurationBuilder::new(ConfigurationSource::StringContent(String::from("{}"))).unwrap();
+    pub fn from_definition(definition: Vec<ConfigurationDefinitionParams>) -> Result<ConfigurationBuilder, JsonConfigError>{
+        let mut builder = try!(ConfigurationBuilder::new(ConfigurationSource::StringContent(String::from("{}"))));
 
         for def_param in definition{
             match def_param{
-                ConfigurationDefinitionParams::Source(source) => builder.merge_source(&source),
+                ConfigurationDefinitionParams::Source(source) => try!(builder.merge_source(&source)),
                 ConfigurationDefinitionParams::Bundle(bundle_key, sources) => builder.define_bundle(bundle_key, sources)
             }
         }
 
-        return builder;
+        Ok(builder)
     }
 
     pub fn merge_sources(&mut self, config_sources: &Vec<ConfigurationSource>){        
@@ -96,36 +96,44 @@ impl<'a> ConfigurationBuilder{
         self.bundles.insert(bundle_key, sources);
     }
 
-    pub fn merge_bundle(&mut self, bundle_key: &str){
-        let sources = self.bundles.get(bundle_key).unwrap().clone();
+    pub fn merge_bundle(&mut self, bundle_key: &str) -> Result<(), JsonConfigError>{
+        let sources = match self.bundles.get(bundle_key){
+            Some(bundle) => bundle.clone(),
+            None => return Err(JsonConfigError::ConfigDefinition),
+        };
+        
         self.merge_sources(&sources);
+
+        Ok(())
     }
 
-    pub fn to_compiled(&mut self, filename: &str){
-        let out_dir = env::var("OUT_DIR").unwrap();
+    pub fn to_compiled(&mut self, filename: &str) -> Result<(), JsonConfigError>{
+        let out_dir = try!(env::var("OUT_DIR"));
         let dest_path = Path::new(&out_dir).join(filename);
-        let mut f = BufWriter::new(File::create(&dest_path).unwrap());
+        let mut f = BufWriter::new(try!(File::create(&dest_path)));
 
-        write!(f, "{}", self.config.to_string().as_str()).unwrap();
+        try!(write!(f, "{}", self.config.to_string().as_str()));
+
+        Ok(())
     }
 
     pub fn to_string(&self) -> String{
         return self.config.to_string();
     }
 
-    pub fn to_string_pretty(&self) -> String{
-        return to_string_pretty(&self.config).unwrap();
+    pub fn to_string_pretty(&self) -> Result<String, JsonConfigError>{
+        Ok(try!(to_string_pretty(&self.config)))
     }
 
     pub fn to_enum(&self) -> Value{
         return self.config.clone();
     }
 
-    pub fn to_type<T>(&self) -> T
+    pub fn to_type<T>(&self) -> Result<T, JsonConfigError>
     where
         T: DeserializeOwned,
     {
-        return from_value(self.config.clone()).unwrap();
+        Ok(try!(from_value(self.config.clone())))
     }
 }
 
