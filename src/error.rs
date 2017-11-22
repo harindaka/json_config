@@ -61,7 +61,7 @@ impl fmt::Display for JsonConfigError {
 impl error::Error for JsonConfigError {
     fn description(&self) -> &str {
         match *self {
-            JsonConfigError::ConfigDefinition(ref err) => format!("Invalid configuration definition encountered. {}", err),
+            JsonConfigError::ConfigDefinition(ref err) => format!("Invalid configuration definition encountered. {}", err).to_string().as_str(),
             //JsonConfigError::BundleNotFound(ref err) => format!("The bundle {} does not exist.", err),
             JsonConfigError::EnvVar(ref err) => error::Error::description(err),
             JsonConfigError::Io(ref err) => error::Error::description(err),

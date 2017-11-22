@@ -99,7 +99,7 @@ impl<'a> ConfigurationBuilder{
     pub fn merge_bundle(&mut self, bundle_key: &str) -> Result<(), JsonConfigError>{
         let sources = match self.bundles.get(bundle_key){
             Some(bundle) => bundle.clone(),
-            None => return Err(JsonConfigError::ConfigDefinition),
+            None => return Err(JsonConfigError::ConfigDefinition("".to_string())),
         };
         
         self.merge_sources(&sources);
