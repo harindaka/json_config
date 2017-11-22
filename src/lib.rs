@@ -2,6 +2,7 @@ extern crate serde;
 extern crate serde_json;
 
 mod macros;
+mod error;
 
 use std::io::Read;
 use std::collections::HashMap;
@@ -15,6 +16,7 @@ use serde_json::from_str;
 use serde_json::to_string_pretty;
 use serde_json::from_value;
 use serde::de::DeserializeOwned;
+use error::JsonConfigError;
 //use serde_json::error::Error;
 
 #[derive(Clone)]
@@ -36,21 +38,21 @@ pub struct ConfigurationBuilder {
 
 impl<'a> ConfigurationBuilder{
 
-    pub fn new(base_source: ConfigurationSource) -> ConfigurationBuilder{
-        let base_config: Value = from_str("{}").unwrap();
+    pub fn new(base_source: ConfigurationSource) -> Result<ConfigurationBuilder, JsonConfigError>{
+        let base_config: Value = try!(from_str("{}"));
         
         let mut config_builder = ConfigurationBuilder{
             config: base_config,
             bundles: HashMap::new()
         };
 
-        config_builder.merge_source(&base_source);
+        try!(config_builder.merge_source(&base_source));
 
-        return config_builder;
+        return Ok(config_builder);
     }
     
     pub fn from_definition(definition: Vec<ConfigurationDefinitionParams>) -> ConfigurationBuilder{
-        let mut builder = ConfigurationBuilder::new(ConfigurationSource::StringContent(String::from("{}")));
+        let mut builder = ConfigurationBuilder::new(ConfigurationSource::StringContent(String::from("{}"))).unwrap();
 
         for def_param in definition{
             match def_param{
@@ -68,24 +70,26 @@ impl<'a> ConfigurationBuilder{
         }
     }
 
-    pub fn merge_source(&mut self, config_source: &ConfigurationSource){            
+    pub fn merge_source(&mut self, config_source: &ConfigurationSource) -> Result<(), JsonConfigError>{            
         match config_source {
             &ConfigurationSource::JsonContent(ref config_override) => {                
                 merge(&mut self.config, &config_override);
             },
             &ConfigurationSource::StringContent(ref content) => {                
-                let config_override: Value = from_str(&content[..]).unwrap();
+                let config_override: Value = try!(from_str(&content[..]));
                 merge(&mut self.config, &config_override);
             },
             &ConfigurationSource::FileContent(ref path) => {
-                let mut config_file = File::open(path).unwrap();
+                let mut config_file = try!(File::open(path));
                 let mut config_file_content = String::new();
-                config_file.read_to_string(&mut config_file_content).unwrap();
+                try!(config_file.read_to_string(&mut config_file_content));
                 
-                let config_override: Value = from_str(&config_file_content[..]).unwrap();
+                let config_override: Value = try!(from_str(&config_file_content[..]));
                 merge(&mut self.config, &config_override);
             }
-        }      
+        }
+        
+        Ok(())    
     }
 
     pub fn define_bundle(&mut self, bundle_key: String, sources: Vec<ConfigurationSource>){
