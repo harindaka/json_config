@@ -5,7 +5,7 @@ use std::fmt;
 use std::io;
 use std::env;
 
-//#[derive(Debug)]
+#[derive(Debug)]
 pub enum ErrorKind{
     ConfigDefinition,
     //BundleNotFound(String),
@@ -14,6 +14,7 @@ pub enum ErrorKind{
     SerdeJson //(serde_json::error::Error)    
 }
 
+#[derive(Debug)]
 pub struct ConfigDefinitionError {
     err: String
 }
@@ -35,7 +36,7 @@ impl error::Error for ConfigDefinitionError {
 }
 
 
-
+#[derive(Debug)]
 pub struct JsonConfigError {
     kind: ErrorKind,
     err: error::Error

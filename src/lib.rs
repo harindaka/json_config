@@ -17,7 +17,6 @@ use serde_json::to_string_pretty;
 use serde_json::from_value;
 use serde::de::DeserializeOwned;
 use error::JsonConfigError;
-//use serde_json::error::Error;
 
 #[derive(Clone)]
 pub enum ConfigurationSource {
