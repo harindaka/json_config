@@ -37,7 +37,7 @@ pub struct ConfigurationBuilder {
 
 impl<'a> ConfigurationBuilder{
 
-    pub fn new(base_source: ConfigurationSource) -> Result<ConfigurationBuilder, JsonConfigError>{
+    pub fn new(base_source: ConfigurationSource) -> Result<ConfigurationBuilder, JsonConfigError<'a>>{
         let base_config: Value = try!(from_str("{}"));
         
         let mut config_builder = ConfigurationBuilder{
@@ -50,7 +50,7 @@ impl<'a> ConfigurationBuilder{
         return Ok(config_builder);
     }
     
-    pub fn from_definition(definition: Vec<ConfigurationDefinitionParams>) -> Result<ConfigurationBuilder, JsonConfigError>{
+    pub fn from_definition(definition: Vec<ConfigurationDefinitionParams>) -> Result<ConfigurationBuilder, JsonConfigError<'a>>{
         let mut builder = try!(ConfigurationBuilder::new(ConfigurationSource::StringContent(String::from("{}"))));
 
         for def_param in definition{
